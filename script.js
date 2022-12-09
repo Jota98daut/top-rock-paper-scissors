@@ -1,6 +1,74 @@
 const R = "rock";
 const P = "paper";
 const S = "scissors";
+const MAX_SCORE = 5;
+
+let playerScore = 0;
+let computerScore = 0;
+
+const choiceButtons = document.querySelectorAll('.btn');
+const resetButton = document.querySelector('#reset');
+const winnerDisplay = document.querySelector('#winner');
+
+choiceButtons.forEach(button => {
+  button.addEventListener('click', _ => {
+    playRound(button.id, getComputerChoice());
+  });
+});
+
+const scores = document.querySelector('#scores');
+const playerMove = document.querySelector('#player-choice');
+const computerMove = document.querySelector('#computer-choice');
+
+resetButton.addEventListener('click', _ => {
+  enableButtons();
+  playerScore = 0;
+  computerScore = 0;
+  playerMove.innerText = null;
+  computerMove.innerText = null;
+  winnerDisplay.innerText = null;
+  scores.innerText = `Player ${playerScore} - ${computerScore} Computer`;
+});
+
+function playRound(playerSelection, computerSelection) {
+  playerSelection = playerSelection.toLowerCase();
+  computerSelection = computerSelection.toLowerCase();
+  playerMove.innerText = playerSelection;
+  computerMove.innerText = computerSelection;
+
+  if(playerSelection !== computerSelection) {
+    if(
+      (playerSelection == R && computerSelection == S) ||
+      (playerSelection == P && computerSelection == R) ||
+      (playerSelection == S && computerSelection == P)
+    )
+      playerScore++;
+    else
+      computerScore++;
+  }
+
+  scores.innerText = `Player ${playerScore} - ${computerScore} Computer`;
+  if(playerScore === MAX_SCORE) {
+    winnerDisplay.innerText = "You win!";
+    disableButtons();
+  }
+  if(computerScore === MAX_SCORE) {
+    winnerDisplay.innerText = "You lose!";
+    disableButtons();
+  }
+}
+
+function disableButtons() {
+  choiceButtons.forEach(button => {
+    button.setAttribute("disabled", "");
+  });
+}
+
+function enableButtons() {
+  choiceButtons.forEach(button => {
+    button.removeAttribute("disabled");
+  });
+}
 
 function getRandomInteger(min, max) {
   return Math.floor(Math.random() * (max - min) ) + min;
@@ -14,69 +82,4 @@ function getComputerChoice() {
     case 2: return S;
     default: return "";
   }
-}
-
-function getPlayerChoice() {
-  let choice;
-  do {
-    choice = prompt("Choose selection (rock/paper/scissors)").toLowerCase();
-  } while(choice != R && choice != P && choice != S);
-  console.log(`Player chose ${choice}`);
-  return choice;
-}
-
-function playRound(playerSelection, computerSelection) {
-  playerSelection = playerSelection.toLowerCase();
-  computerSelection = computerSelection.toLowerCase();
-  if(playerSelection == computerSelection)
-    return "draw";
-  if(
-    (playerSelection == R && computerSelection == S) ||
-    (playerSelection == P && computerSelection == R) ||
-    (playerSelection == S && computerSelection == P)
-  )
-    return "player";
-  else
-    return "computer";
-}
-
-function game(nRounds) {
-  let result, playerSelection, computerSelection;
-  let playerScore = 0;
-  let computerScore = 0;
-  let gameFinished = false;
-  let currentRound = 1;
-  let maxScore = Math.floor(nRounds/2) + 1;
-
-  while(!gameFinished) {
-    playerSelection = getPlayerChoice();
-    computerSelection = getComputerChoice();
-    result = playRound(playerSelection, computerSelection);
-
-    switch(result) {
-      case "draw":
-        console.log(`Round ${currentRound}: draw! player ${playerScore} - ${computerScore} computer`);
-        break;
-      case "player":
-        playerScore++;
-        console.log(`Round ${currentRound}: you win! player ${playerScore} - ${computerScore} computer`);
-        break;
-      case "computer":
-        computerScore++;
-        console.log(`Round ${currentRound}: you lose! player ${playerScore} - ${computerScore} computer`);
-        break;
-      default: break;
-    }
-
-    currentRound++;
-    if(currentRound > nRounds || playerScore == maxScore || computerScore == maxScore)
-      gameFinished = true;
-  }
-
-  if(playerScore == computerScore)
-    console.log(`Final result: Draw! ${playerScore} to ${computerScore}`)
-  else if(playerScore < computerScore)
-    console.log(`Final result: You lose! ${playerScore} to ${computerScore}`)
-  else
-    console.log(`Final result: You win! ${playerScore} to ${computerScore}`)
 }
